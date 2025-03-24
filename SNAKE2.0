@@ -1,0 +1,28 @@
+void setup() {
+  // put your setup code here, to run once:
+#define LD1R 2 // ALIAS DES LED ET DES BOUTON
+#define LD1G 1
+#define LD1B 0
+#define LD2R 7
+#define LD2G 6
+#define LD2B 5
+#define LD3R 4
+#define LD3G 3
+#define LD3B 2
+#define BTNUP 2
+#define BTNDOWN 7
+#define BTNLEFT 1
+#define BTNRIGTH 3
+#define BTNA 6
+#define BTNB 4
+#define BTNC 5//¨¨
+DDRG = 0X07;//LES BIT LED1 A 1 POUR SORTIE
+DDRL = 0XFC;// LES BIT LED 2 ET 3 A 1 POUR SORTIE
+DDRC = 0X01;//LES BIT RESTE A 0 POUR ENTRÉE RESTE A 1
+PORTC = 0XFD;//PULL UP DES BIT 0 QUI SONT EENTRÉE
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
