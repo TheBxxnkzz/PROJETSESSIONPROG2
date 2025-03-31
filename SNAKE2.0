@@ -9,7 +9,7 @@
 #define LD3B 2
 #define BTNUP 2
 #define BTNDOWN 7
-#define BTNLEFT 1
+#define BTNLEFT 1 
 #define BTNRIGTH 3
 #define BTNA 6
 #define BTNB 4
@@ -17,13 +17,34 @@
  
 enum class Gamestate {
  MainMenu,
+ Parametre,
  Playing,
  Gameover,
  Exit
  };
+
+ void Machine_A_Etat();
+
+  enum CurrentState{Menu , Parametre , Playing , GameOver };
+  
+  void Machine_A_Etat(){
  
-GameState CurrentState;
+ static CurrentState GameState = Menu;
  
+ switch (GameState){
+ case Menu:
+  break;
+ case Parametre: 
+  break;
+ case Playing:
+  break;
+ case GameOver:
+  break;
+ default:
+  break;
+  }
+ }
+
  void ctrlLD1R(unsigned char etat){
   if(etat){
     PORTG |=(1<<LD1R);
@@ -96,17 +117,16 @@ GameState CurrentState;
     PORTL &=~(1<<LD3G);
   }
  }
- 
- unsigned char lireBTNUP(){
+  unsigned char lireBTNUP(){
   return( (PINC & (1<<BTNUP) ) == 0);
- 
- }
-  unsigned char lireBTNDOWN(){
-  return( (PINC & (1<<BTNDOWN) ) == 0);
  
  }
   unsigned char lireBTNLEFT(){
   return( (PINC & (1<<BTNLEFT) ) == 0);
+ 
+ }
+  unsigned char lireBTNDOWN(){
+  return( (PINC & (1<<BTNDOWN) ) == 0);
  
  }
   unsigned char lireBTNRIGTH(){
@@ -114,28 +134,21 @@ GameState CurrentState;
  
  }
 void setup() {
-CurrentState = GameState::MainMenu;
+Serial.begin(9600);
 DDRG = 0X07;//LES BIT LED1 A 1 POUR SORTIE
 DDRL = 0XFC;// LES BIT LED 2 ET 3 A 1 POUR SORTIE
-DDRC = 0X01;//LES BIT RESTE A 0 POUR ENTRÉE RESTE A 1
-PORTC = 0XFD;//PULL UP DES BIT 0 QUI SONT EENTRÉE
+DDRC = 0X01;//LES BIT RESTE A 0 / POUR ENTRÉE RESTE A 1
+PORTC = 0xFF;//PULL UP DES BIT 0 QUI SONT EENTRÉE
 }
  
  
 void loop() {
-validationLED();
+//validationLED();
 validationBTN();
- switch (CurrentState){
- case GameState::MainMenu:
-  break;
- case GameState::Playing:
-  break;
- case GameState::GameOver:
-  break;
- default:
-  break;
- }
+Machine_A_Etat();
+
 }
+
 void validationLED(){
   ctrlLD1R(1);
   delay(1000);
@@ -151,8 +164,9 @@ void validationLED(){
 }
 void validationBTN(){
  
-  ctrlLD1R(lireBTNUP());
-  ctrlLD2B(lireBTNDOWN());
-  ctrlLD3G(lireBTNLEFT());
-  ctrlLD2R(lireBTNRIGTH());
+  
+ ctrlLD3R (lireBTNUP());
+  ctrlLD1B (lireBTNDOWN());
+   ctrlLD1G (lireBTNLEFT());
+    ctrlLD2R (lireBTNRIGTH());
 }
