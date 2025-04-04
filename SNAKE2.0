@@ -1,3 +1,4 @@
+ volatile int startencodeur = 0
 #define LD1R 2 // ALIAS DES LED ET DES BOUTON
 #define LD1G 1
 #define LD1B 0
@@ -14,7 +15,10 @@
 #define BTNA 6
 #define BTNB 4
 #define BTNC 5
- 
+#define CHANl 5
+#define CHAN2 3
+#define SW1 5
+
 enum class Gamestate {
  MainMenu,
  Parametre,
@@ -133,12 +137,18 @@ enum class Gamestate {
   return( (PINC & (1<<BTNRIGTH) ) == 0);
  
  }
+ void encodeur(){
+  interrupt
+ }
 void setup() {
 Serial.begin(9600);
-DDRG = 0X07;//LES BIT LED1 A 1 POUR SORTIE
+DDRE = 0XD7;//LES BIT DE L ENCODEUR SONT A 0 POUR ENTRE 
+DDRG = 0X07;//LES BIT LED1 A 1 POUR SORTIE ET SW1 ENCODEUR A 0 POUR ENTRE
 DDRL = 0XFC;// LES BIT LED 2 ET 3 A 1 POUR SORTIE
 DDRC = 0X01;//LES BIT RESTE A 0 / POUR ENTRÉE RESTE A 1
-PORTC = 0xFF;//PULL UP DES BIT 0 QUI SONT EENTRÉE
+PORTC = 0XFF;//PULL UP DES BIT 0 QUI SONT EENTRÉE
+PORTG = 0X20;//PULL UP DU BOUTON SW1
+attachInterrupt()
 }
  
  
