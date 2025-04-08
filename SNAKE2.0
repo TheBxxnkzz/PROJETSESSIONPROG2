@@ -1,5 +1,5 @@
- volatile int startencodeur = 0
-#define LD1R 2 // ALIAS DES LED ET DES BOUTON
+
+#define LD1R 2  // ALIAS DES LED ET DES BOUTON
 #define LD1G 1
 #define LD1B 0
 #define LD2R 7
@@ -10,7 +10,7 @@
 #define LD3B 2
 #define BTNUP 2
 #define BTNDOWN 7
-#define BTNLEFT 1 
+#define BTNLEFT 1
 #define BTNRIGTH 3
 #define BTNA 6
 #define BTNB 4
@@ -18,148 +18,146 @@
 #define CHANl 5
 #define CHAN2 3
 #define SW1 5
+volatile int StartEncodeur = 0;
 
 enum class Gamestate {
- MainMenu,
- Parametre,
- Playing,
- Gameover,
- Exit
- };
+  MainMenu,
+  Parametre,
+  Playing,
+  Gameover,
+  Exit
+};
 
- void Machine_A_Etat();
+void Machine_A_Etat();
 
-  enum CurrentState{Menu , Parametre , Playing , GameOver };
-  
-  void Machine_A_Etat(){
- 
- static CurrentState GameState = Menu;
- 
- switch (GameState){
- case Menu:
-  break;
- case Parametre: 
-  break;
- case Playing:
-  break;
- case GameOver:
-  break;
- default:
-  break;
-  }
- }
+enum CurrentState { Menu,
+                    Parametre,
+                    Playing,
+                    GameOver };
 
- void ctrlLD1R(unsigned char etat){
-  if(etat){
-    PORTG |=(1<<LD1R);
+void Machine_A_Etat() {
+
+  static CurrentState GameState = Menu;
+
+  switch (GameState) {
+    case Menu:
+      break;
+    case Parametre:
+      break;
+    case Playing:
+      break;
+    case GameOver:
+      break;
+    default:
+      break;
   }
-  else{
-    PORTG &=~(1<<LD1R);
+}
+
+void EncodeurInterruption() {
+  if (PINE & (1 << CHAN1)) {
+    StartEncodeur++;
+  } else {
+    StartEncodeur--;
   }
- }
- void ctrlLD1B(unsigned char etat){
-  if(etat){
-    PORTG |=(1<<LD1B);
+}
+void ctrlLD1R(unsigned char etat) {
+  if (etat) {
+    PORTG |= (1 << LD1R);
+  } else {
+    PORTG &= ~(1 << LD1R);
   }
-  else{
-    PORTG &=~(1<<LD1B);
+}
+void ctrlLD1B(unsigned char etat) {
+  if (etat) {
+    PORTG |= (1 << LD1B);
+  } else {
+    PORTG &= ~(1 << LD1B);
   }
- }
- void ctrlLD1G(unsigned char etat){
-  if(etat){
-    PORTG |=(1<<LD1G);
+}
+void ctrlLD1G(unsigned char etat) {
+  if (etat) {
+    PORTG |= (1 << LD1G);
+  } else {
+    PORTG &= ~(1 << LD1G);
   }
-  else{
-    PORTG &=~(1<<LD1G);
+}
+void ctrlLD2R(unsigned char etat) {
+  if (etat) {
+    PORTL |= (1 << LD2R);
+  } else {
+    PORTL &= ~(1 << LD2R);
   }
- }
- void ctrlLD2R(unsigned char etat){
-  if(etat){
-    PORTL |=(1<<LD2R);
+}
+void ctrlLD2B(unsigned char etat) {
+  if (etat) {
+    PORTL |= (1 << LD2B);
+  } else {
+    PORTL &= ~(1 << LD2B);
   }
-  else{
-    PORTL &=~(1<<LD2R);
+}
+void ctrlLD2G(unsigned char etat) {
+  if (etat) {
+    PORTL |= (1 << LD2G);
+  } else {
+    PORTL &= ~(1 << LD2G);
   }
- }
- void ctrlLD2B(unsigned char etat){
-  if(etat){
-    PORTL |=(1<<LD2B);
+}
+void ctrlLD3R(unsigned char etat) {
+  if (etat) {
+    PORTL |= (1 << LD3R);
+  } else {
+    PORTL &= ~(1 << LD3R);
   }
-  else{
-    PORTL &=~(1<<LD2B);
+}
+void ctrlLD3B(unsigned char etat) {
+  if (etat) {
+    PORTL |= (1 << LD3B);
+  } else {
+    PORTL &= ~(1 << LD3B);
   }
- }
- void ctrlLD2G(unsigned char etat){
-  if(etat){
-    PORTL |=(1<<LD2G);
+}
+void ctrlLD3G(unsigned char etat) {
+  if (etat) {
+    PORTL |= (1 << LD3G);
+  } else {
+    PORTL &= ~(1 << LD3G);
   }
-  else{
-    PORTL &=~(1<<LD2G);
-  }
- }
- void ctrlLD3R(unsigned char etat){
-  if(etat){
-    PORTL |=(1<<LD3R);
-  }
-  else{
-    PORTL &=~(1<<LD3R);
-  }
- }
- void ctrlLD3B(unsigned char etat){
-  if(etat){
-    PORTL |=(1<<LD3B);
-  }
-  else{
-    PORTL &=~(1<<LD3B);
-  }
- }
- void ctrlLD3G(unsigned char etat){
-  if(etat){
-    PORTL |=(1<<LD3G);
-  }
-  else{
-    PORTL &=~(1<<LD3G);
-  }
- }
-  unsigned char lireBTNUP(){
-  return( (PINC & (1<<BTNUP) ) == 0);
- 
- }
-  unsigned char lireBTNLEFT(){
-  return( (PINC & (1<<BTNLEFT) ) == 0);
- 
- }
-  unsigned char lireBTNDOWN(){
-  return( (PINC & (1<<BTNDOWN) ) == 0);
- 
- }
-  unsigned char lireBTNRIGTH(){
-  return( (PINC & (1<<BTNRIGTH) ) == 0);
- 
- }
- void encodeur(){
-  interrupt
- }
+}
+unsigned char lireBTNUP() {
+  return ((PINC & (1 << BTNUP)) == 0);
+}
+unsigned char lireBTNLEFT() {
+  return ((PINC & (1 << BTNLEFT)) == 0);
+}
+unsigned char lireBTNDOWN() {
+  return ((PINC & (1 << BTNDOWN)) == 0);
+}
+unsigned char lireBTNRIGTH() {
+  return ((PINC & (1 << BTNRIGTH)) == 0);
+}
+unsigned char lireSW1(){
+  return ((PING & (1<<SW1)) == 0);
+}
+
 void setup() {
-Serial.begin(9600);
-DDRE = 0XD7;//LES BIT DE L ENCODEUR SONT A 0 POUR ENTRE 
-DDRG = 0X07;//LES BIT LED1 A 1 POUR SORTIE ET SW1 ENCODEUR A 0 POUR ENTRE
-DDRL = 0XFC;// LES BIT LED 2 ET 3 A 1 POUR SORTIE
-DDRC = 0X01;//LES BIT RESTE A 0 / POUR ENTRÉE RESTE A 1
-PORTC = 0XFF;//PULL UP DES BIT 0 QUI SONT EENTRÉE
-PORTG = 0X20;//PULL UP DU BOUTON SW1
-attachInterrupt()
+  Serial.begin(9600);
+  DDRE = 0XD7;   //LES BIT DE L ENCODEUR SONT A 0 POUR ENTRE
+  DDRG = 0X07;   //LES BIT LED1 A 1 POUR SORTIE ET SW1 ENCODEUR A 0 POUR ENTRE
+  DDRL = 0XFC;   // LES BIT LED 2 ET 3 A 1 POUR SORTIE
+  DDRC = 0X01;   //LES BIT RESTE A 0 / POUR ENTRÉE RESTE A 1
+  PORTC = 0XFF;  //PULL UP DES BIT 0 QUI SONT EENTRÉE
+  PORTG = 0X20;  //PULL UP DU BOUTON SW1
+  attachInterrupt(4,EncodeurInterruption, CHANGE);
 }
- 
- 
+
+
 void loop() {
-//validationLED();
-validationBTN();
-Machine_A_Etat();
-
+  //validationLED();
+  validationBTN();
+  Machine_A_Etat();
 }
 
-void validationLED(){
+void validationLED() {
   ctrlLD1R(1);
   delay(1000);
   ctrlLD1R(0);
@@ -170,13 +168,13 @@ void validationLED(){
   delay(1000);
   ctrlLD3G(1);
   delay(1000);
- ctrlLD3G(0);
+  ctrlLD3G(0);
 }
-void validationBTN(){
- 
-  
- ctrlLD3R (lireBTNUP());
-  ctrlLD1B (lireBTNDOWN());
-   ctrlLD1G (lireBTNLEFT());
-    ctrlLD2R (lireBTNRIGTH());
+void validationBTN() {
+
+
+  ctrlLD3R(lireBTNUP());
+  ctrlLD1B(lireBTNDOWN());
+  ctrlLD1G(lireBTNLEFT());
+  ctrlLD2R(lireBTNRIGTH());
 }
