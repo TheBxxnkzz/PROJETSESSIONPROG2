@@ -43,18 +43,42 @@ void Machine_A_Etat() {
 
   switch (GameState) {
     case Menu:
+     EtatMenu();
       break;
     case Parametre:
+      EtatParametre();
       break;
     case Playing:
+      EtatPlaying();
       break;
     case GameOver:
+     EtatGameOver();
       break;
     default:
       break;
   }
 }
 
+ void EtatMenu(){
+  matrix.fillScreen(0);
+  matrix.setCursor(9, 1);
+  matrix.setTextColor(matrix.color888(0 ,255 ,0));
+  matrix.print("Menu");
+  
+  if (lireBTNA()){
+ currentState = Parametre;
+ delay(200);
+  }else if (lireBTNB()){
+    currentState = Parametre;
+    delay(200);
+  }
+ }
+ void EtatParametre(){
+  matrix.fillScreen(0);
+  matrix.setCursor(9,1);
+  matrix.setTextColor(matrix.Color888(255,255,0));
+  matrix.print("Parametre");
+ }
 void EncodeurInterruption() {
   if (PINE & (1 << CHAN2)) {
     StartEncodeur++;
