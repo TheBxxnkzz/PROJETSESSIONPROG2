@@ -22,6 +22,12 @@ MOMO_RGB_Matrix matrix;
 
 volatile int StartEncodeur = 0;
 
+enum Direction {Haut, Bas, Gauche, Droite };
+Direction direction = Haut;
+
+int snakeX = 32;
+int snakeY = 16;
+
 enum class Gamestate {
   MainMenu,
   Parametre,
@@ -43,7 +49,7 @@ void Machine_A_Etat() {
 
   switch (GameState) {
     case Menu:
-     EtatMenu();
+      EtatMenu();
       break;
     case Parametre:
       EtatParametre();
@@ -52,27 +58,60 @@ void Machine_A_Etat() {
       EtatPlaying();
       break;
     case GameOver:
-     EtatGameOver();
+      EtatGameOver();
       break;
     default:
       break;
   }
 }
 
- void EtatMenu(){
+void EtatMenu() {
   matrix.fillScreen(0);
   matrix.setCursor(9, 1);
-  matrix.setTextColor(matrix.color888(0 ,255 ,0));
+  matrix.setTextColor(matrix.color888(0, 255, 0));
   matrix.print("Menu");
-  
-  if (lireBTNA()){
- currentState = Parametre;
- delay(200);
-  }else if (lireBTNB()){
+
+  if (lireBTNA()) {
+    currentState = Parametre;
+    delay(200);
+  } else if (lireBTNB()) {
     currentState = Parametre;
     delay(200);
   }
- }
+}
+void EtatPlaying() {
+  matrix.fillScreen(0);
+
+  if (lireBTNUP()) direction = Haut;
+  if (lireBTNDOWN()) direction = Bas;
+  if (lireBTNLEFT()) direction = Gauche;
+  if (lireBTNRIGTH()) direction = Droite;
+
+  if (millis() - dernierDeplacement > 250) {
+    dernierDeplacement = miliis();
+    switch (direction) {
+      case Haut: snakeY--; break;
+      case Bas: snakeY++; break;
+      case Gauche snakeX--; break;
+      case Droite snakeX++; break;
+    }
+   if(snakeX < 0 || snakeX >= 63 || snakeY <= 0 || snake >= 31){
+    currentState = GameOver;
+    return;
+   }
+   matrix,drawPixel(snakeX, snakeY, matrix.Color888(0, 255, 0));
+  
+   for(int x = 0; x < 64; x++){
+    matrix.drawPixel(x, 0, matrix.Color888(255, 0, 0));
+    matrix.drawPixel(x, 0, matrix.Color888(255, 0, 0));
+   }
+   for(int y = 0; y < 32; y++){
+    matrix.drawPixel(0, y, matrix.Color888(255, 0, 0));
+    matrix.drawPixel(63, y, matrix.Color888(255, 0, 0, ));
+   }
+  }
+  
+ 
  void EtatParametre(){
   matrix.fillScreen(0);
   matrix.setCursor(9,1);
