@@ -19,14 +19,25 @@
 #define CHAN2 3
 #define SW1 5
 MOMO_RGB_Matrix matrix;
-
+unsigned long dernierDeplacement = 0;
 volatile int StartEncodeur = 0;
+
+struct Segment {
+  int x;
+  int y;
+};
+
+#define Max_Taille 256
+
+Segment snake  [Max_Taille];
+int longeur = 5;
+int nourritureX = 10;
+int nourritureY = 10;
+
 
 enum Direction {Haut, Bas, Gauche, Droite };
 Direction direction = Haut;
 
-int snakeX = 32;
-int snakeY = 16;
 
 enum class Gamestate {
   MainMenu,
@@ -42,7 +53,7 @@ enum CurrentState { Menu,
                     Parametre,
                     Playing,
                     GameOver };
-
+CurrentState currentState = Menu;
 void Machine_A_Etat() {
 
   static CurrentState GameState = Menu;
@@ -68,7 +79,7 @@ void Machine_A_Etat() {
 void EtatMenu() {
   matrix.fillScreen(0);
   matrix.setCursor(9, 1);
-  matrix.setTextColor(matrix.color888(0, 255, 0));
+  matrix.setTextColor(matrix.Color888(0, 255, 0));
   matrix.print("Menu");
 
   if (lireBTNA()) {
@@ -80,39 +91,43 @@ void EtatMenu() {
   }
 }
 void EtatPlaying() {
+  
   matrix.fillScreen(0);
 
-  if (lireBTNUP()) direction = Haut;
-  if (lireBTNDOWN()) direction = Bas;
-  if (lireBTNLEFT()) direction = Gauche;
-  if (lireBTNRIGTH()) direction = Droite;
-
+  if (lireBTNUP() && direction != Bas) direction = Haut ;
+    if (lireBTNDOWN() && direction != Haut) direction = Bas ;
+      if (lireBTNLEFT() && direction != Droite) direction = Gauche ;
+        if (lireBTNRIGTH() && direction != Gauche) direction = Droite;
+  
   if (millis() - dernierDeplacement > 250) {
-    dernierDeplacement = miliis();
-    switch (direction) {
-      case Haut: snakeY--; break;
-      case Bas: snakeY++; break;
-      case Gauche snakeX--; break;
-      case Droite snakeX++; break;
+    dernierDeplacement = millis();
+    for (int i = longeur - 1; i > 0; i--){
+      snake[i] = snake[i - 1];
     }
-   if(snakeX < 0 || snakeX >= 63 || snakeY <= 0 || snake >= 31){
+    switch (direction) {
+      case Haut: snake[0].y--; break;
+      case Bas: snake[0].y++; break;
+      case Gauche: snake[0].x--; break;
+      case Droite: snake[0].x++; break;
+    }
+   if(snake[0].x < 0 || snake[0].x >= 63 || snake[0].y <= 0 || snake[0].y >= 31){
     currentState = GameOver;
     return;
    }
-   matrix,drawPixel(snakeX, snakeY, matrix.Color888(0, 255, 0));
-  
+   for(int i = 0; i < longeur; i++){
+   matrix.drawPixel(snake[i].x, snake[i].y, matrix.Color888(0, 255, 0));
+   }
    for(int x = 0; x < 64; x++){
-    matrix.drawPixel(x, 0, matrix.Color888(255, 0, 0));
     matrix.drawPixel(x, 0, matrix.Color888(255, 0, 0));
    }
    for(int y = 0; y < 32; y++){
     matrix.drawPixel(0, y, matrix.Color888(255, 0, 0));
-    matrix.drawPixel(63, y, matrix.Color888(255, 0, 0, ));
+    matrix.drawPixel(63, y, matrix.Color888(255, 0, 0));
    }
   }
   
  
- void EtatParametre(){
+ void EtatParametre() {
   matrix.fillScreen(0);
   matrix.setCursor(9,1);
   matrix.setTextColor(matrix.Color888(255,255,0));
@@ -207,6 +222,15 @@ unsigned char lireSW1(){
 void setup() {
   matrix.begin();
   Serial.begin(9600);
+  snake[0].x = 64/2;
+  snake[0].y = 32/2;
+  for (int i = 0; i < longeur; i++){
+    snake[i].x = snakeX - i;
+    snake[i].y = snakeY;
+  }
+  randomSeed(analogRead(0));
+  nourritureX = random(1, 63);
+  nourritureY = random(1, 31);
   DDRE = 0XD7;   //LES BIT DE L ENCODEUR SONT A 0 POUR ENTRE
   DDRG = 0X07;   //LES BIT LED1 A 1 POUR SORTIE ET SW1 ENCODEUR A 0 POUR ENTRE
   DDRL = 0XFC;   // LES BIT LED 2 ET 3 A 1 POUR SORTIE
