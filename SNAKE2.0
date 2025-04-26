@@ -1,4 +1,9 @@
-#include <MOMO_RGB_Matrix.h>
+ // Exemple d'utilisation de la librarie RGBmatrixPanel
+
+#include <RGBmatrixPanel.h>
+
+RGBmatrixPanel matrix(A0, A1, A2, A3, 11, 10, 9, false, 64);
+
 #define LD1R 2  // ALIAS DES LED ET DES BOUTON
 #define LD1G 1
 #define LD1B 0
@@ -18,7 +23,7 @@
 #define CHANl 5
 #define CHAN2 3
 #define SW1 5
-MOMO_RGB_Matrix matrix;
+
 unsigned long dernierDeplacement = 0;
 volatile int StartEncodeur = 0;
 
@@ -80,16 +85,16 @@ void Machine_A_Etat() {
 }
 
 void EtatMenu() {
-  matrix.fillScreen(0);
   matrix.setCursor(9, 1);
   matrix.setTextColor(matrix.Color888(255, 255, 255));
   matrix.print("Snake2.0");
-
   if (lireBTNUP()) {
+       matrix.fillScreen(0);
     currentState = Parametre;
     delay(200);
   }
   if (lireBTNDOWN()) {
+       matrix.fillScreen(0);
     currentState = Playing;
     delay(200);
   }
@@ -102,9 +107,10 @@ void EtatPlaying() {
   if (lireBTNDOWN() && direction != Haut) direction = Bas;
   if (lireBTNLEFT() && direction != Droite) direction = Gauche;
   if (lireBTNRIGTH() && direction != Gauche) direction = Droite;
-  matrix.fillScreen(0);
+ 
   if (millis() - dernierDeplacement > 250) {
     dernierDeplacement = millis();
+      matrix.fillScreen(0);
     for (int i = longeur - 1; i > 0; i--) {
       snake[i] = snake[i - 1];
     }
@@ -132,26 +138,37 @@ void EtatPlaying() {
   }
 }
 void EtatParametre() {
-  matrix.fillScreen(0);
+ 
   matrix.setCursor(5, 1);
   matrix.setTextColor(matrix.Color888(255, 255, 0));
   matrix.print("Parametre");
 }
+
 void EtatGameOver() {
-  matrix.fillScreen(0);
-  matrix.setTextWrap(false);
   matrix.setCursor(5, 5);
   matrix.setTextColor(matrix.Color888(255, 0, 0));
   matrix.print("GAME OVER");
-
   if (lireBTNC()) {
+    matrix.fillScreen(0);
+    resetGame();
     currentState = Menu;
     delay(200);
   }
 }
 
+void resetGame(){
+ longeur = 5;
+ direction = Haut;
+ snake[0].x = 64 / 2;
+ snake[0].y = 32 / 2;
+ for (int i = 0; i < longeur; i++) {
+  snake[i].x = snake[0].x -i;
+  snake[i].y = snake[0].y;
 
-
+ }
+ nourritureX = random(1,63);
+ nourritureY = random(1,31);
+}
 void EncodeurInterruption() {
   if (PINE & (1 << CHAN2)) {
     StartEncodeur++;
