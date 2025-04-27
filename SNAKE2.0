@@ -85,19 +85,61 @@ void Machine_A_Etat() {
 }
 
 void EtatMenu() {
-  matrix.setCursor(9, 1);
+  static int Selection = 0;
+  static int DernSelection = -1;
+  static int DernEncodeur = 0;
+
+matrix.setTextSize(1);
+matrix.setTextWrap(false);
+
+  matrix.setCursor(10, 0);
   matrix.setTextColor(matrix.Color888(255, 255, 255));
   matrix.print("Snake2.0");
-  if (lireBTNUP()) {
-       matrix.fillScreen(0);
-    currentState = Parametre;
-    delay(200);
+  
+
+matrix.setCursor(20, 12);
+  matrix.setTextColor(matrix.Color888(0, 255,0));
+  matrix.print("Play");
+
+  matrix.setCursor(20, 22);
+  matrix.setTextColor(matrix.Color888(0, 255, 255));
+  matrix.print("Setting");
+
+if (StartEncodeur != DernEncodeur) {
+  if (StartEncodeur > DernEncodeur){
+    Selection++;
+  } else {
+    Selection--;
   }
-  if (lireBTNDOWN()) {
-       matrix.fillScreen(0);
+  DernEncodeur = StartEncodeur;
+}
+if (Selection < 0) Selection = 1;
+if (Selection > 1) Selection = 0;
+
+if (DernSelection != Selection){
+  if (DernSelection ==0){
+    matrix.setCursor(5, 12);
+    matrix.setTextColor(matrix.Color888(0, 0, 0));
+    matrix.print(">");
+  }
+  DernSelection = Selection;
+}
+if (Selection == 0) {
+  matrix.setCursor(5, 12);
+} else{
+  matrix.setCursor(5,22);
+}
+matrix.setTextColor(matrix.Color888(255, 0, 0));
+matrix.print(">");
+
+if (lireSW1()){
+  delay(150);
+  if (Selection == 0){
     currentState = Playing;
-    delay(200);
+  }else{
+    currentState = Parametre;
   }
+ }
 }
 void EtatPlaying() {
 
