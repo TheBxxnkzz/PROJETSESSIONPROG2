@@ -23,7 +23,7 @@ RGBmatrixPanel matrix(A0, A1, A2, A3, 11, 10, 9, false, 64);
 #define CHANl 5
 #define CHAN2 3
 #define SW1 5
-
+int VitesseDeJeu = 250;
 unsigned long dernierDeplacement = 0;
 volatile int StartEncodeur = 0;
 
@@ -108,17 +108,25 @@ void EtatPlaying() {
   if (lireBTNLEFT() && direction != Droite) direction = Gauche;
   if (lireBTNRIGTH() && direction != Gauche) direction = Droite;
  
-  if (millis() - dernierDeplacement > 250) {
+  if (millis() - dernierDeplacement > VitesseDeJeu) {
     dernierDeplacement = millis();
       matrix.fillScreen(0);
     for (int i = longeur - 1; i > 0; i--) {
-      snake[i] = snake[i - 1];
+      snake[i] = snake[i - 1]; 
     }
     switch (direction) {
       case Haut: snake[0].y--; break;
       case Bas: snake[0].y++; break;
       case Gauche: snake[0].x--; break;
       case Droite: snake[0].x++; break;
+    }
+        if (snake[0].x == nourritureX && snake[0].y == nourritureY){
+      longeur++;
+          nourritureX = random(1, 62);
+          nourritureY = random(1, 30);
+             if (longeur > Max_Taille) longeur = Max_Taille;
+                  if(VitesseDeJeu > 50) VitesseDeJeu -=10;
+
     }
     if (snake[0].x < 0 || snake[0].x >= 63 || snake[0].y <= 0 || snake[0].y >= 31) {
       currentState = GameOver;
@@ -127,6 +135,9 @@ void EtatPlaying() {
     for (int i = 0; i < longeur; i++) {
       matrix.drawPixel(snake[i].x, snake[i].y, matrix.Color888(0, 255, 0));
     }
+ 
+     matrix.drawPixel(nourritureX, nourritureY, matrix.Color888(255, 0, 0));
+
     for (int x = 0; x < 64; x++) {
       matrix.drawPixel(x, 0, matrix.Color888(255, 0, 0));
       matrix.drawPixel(x, 31, matrix.Color888(255, 0, 0));
@@ -166,8 +177,8 @@ void resetGame(){
   snake[i].y = snake[0].y;
 
  }
- nourritureX = random(1,63);
- nourritureY = random(1,31);
+ nourritureX = random(1,62);
+ nourritureY = random(1,30);
 }
 void EncodeurInterruption() {
   if (PINE & (1 << CHAN2)) {
@@ -268,8 +279,8 @@ void setup() {
     snake[i].y = snake[0].y;
   }
   randomSeed(analogRead(0));
-  nourritureX = random(1, 63);
-  nourritureY = random(1, 31);
+  nourritureX = random(1, 62);
+  nourritureY = random(1, 30);
   DDRE = 0XD7;   //LES BIT DE L ENCODEUR SONT A 0 POUR ENTRE
   DDRG = 0X07;   //LES BIT LED1 A 1 POUR SORTIE ET SW1 ENCODEUR A 0 POUR ENTRE
   DDRL = 0XFC;   // LES BIT LED 2 ET 3 A 1 POUR SORTIE
