@@ -1,4 +1,3 @@
- // Exemple d'utilisation de la librarie RGBmatrixPanel
 
 #include <RGBmatrixPanel.h>
 
@@ -88,7 +87,7 @@ void EtatMenu() {
   static int Selection = 0;
   static int DernSelection = -1;
   static int DernEncodeur = 0;
-
+  static unsigned long DernierChangement = 0;
 matrix.setTextSize(1);
 matrix.setTextWrap(false);
 
@@ -105,14 +104,16 @@ matrix.setCursor(20, 12);
   matrix.setTextColor(matrix.Color888(0, 255, 255));
   matrix.print("Setting");
 
-if (StartEncodeur != DernEncodeur) {
+ if (millis() - DernierChangement > 150){
   if (StartEncodeur > DernEncodeur){
     Selection++;
-  } else {
+      DernEncodeur = StartEncodeur;
+  } else if(StartEncodeur < DernEncodeur){
     Selection--;
+    DernEncodeur = StartEncodeur;
   }
-  DernEncodeur = StartEncodeur;
-}
+ }
+
 if (Selection < 0) Selection = 1;
 if (Selection > 1) Selection = 0;
 
@@ -132,7 +133,7 @@ if (Selection == 0) {
 matrix.setTextColor(matrix.Color888(255, 0, 0));
 matrix.print(">");
 
-if (lireSW1()){
+ if (lireSW1()){
   delay(150);
   if (Selection == 0){
     currentState = Playing;
@@ -141,6 +142,7 @@ if (lireSW1()){
   }
  }
 }
+
 void EtatPlaying() {
 
 
