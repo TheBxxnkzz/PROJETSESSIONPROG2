@@ -19,7 +19,7 @@ RGBmatrixPanel matrix(A0, A1, A2, A3, 11, 10, 9, false, 64);
 #define BTNA 6
 #define BTNB 4
 #define BTNC 5
-#define CHANl 5
+#define CHAN11 4
 #define CHAN2 3
 #define SW1 5
 int VitesseDeJeu = 250;
@@ -108,9 +108,11 @@ matrix.setCursor(20, 12);
   if (StartEncodeur > DernEncodeur){
     Selection++;
       DernEncodeur = StartEncodeur;
+      DernierChangement = millis();
   } else if(StartEncodeur < DernEncodeur){
     Selection--;
     DernEncodeur = StartEncodeur;
+    DernierChangement = millis();
   }
  }
 
@@ -128,10 +130,12 @@ if (DernSelection != Selection){
 if (Selection == 0) {
   matrix.setCursor(5, 12);
 } else{
-  matrix.setCursor(5,22);
+  matrix.setCursor(5, 22);
 }
 matrix.setTextColor(matrix.Color888(255, 0, 0));
 matrix.print(">");
+
+DernSelection = Selection;
 
  if (lireSW1()){
   delay(150);
@@ -225,7 +229,7 @@ void resetGame(){
  nourritureY = random(1,30);
 }
 void EncodeurInterruption() {
-  if (PINE & (1 << CHAN2)) {
+  if (PINE & (1 << CHAN11)) {
     StartEncodeur++;
   } else {
     StartEncodeur--;
@@ -331,7 +335,11 @@ void setup() {
   DDRC = 0X01;   //LES BIT RESTE A 0 / POUR ENTRÉE RESTE A 1
   PORTC = 0XFF;  //PULL UP DES BIT 0 QUI SONT EENTRÉE
   PORTG = 0X20;  //PULL UP DU BOUTON SW1
-  attachInterrupt(4, EncodeurInterruption, CHANGE);
+
+  DDRE &= ~((1 << CHAN2) |(1 <<CHAN11));
+  PORTE |=(1 << CHAN2) | (1 << CHAN11); 
+
+  attachInterrupt(5, EncodeurInterruption, CHANGE);
 }
 void dessin() {
   matrix.setTextSize(1);
@@ -350,6 +358,8 @@ void loop() {
   validationBTN();
   Machine_A_Etat();
   //dessin();
+  Serial.print("StartEncodeur =");
+  Serial.println(StartEncodeur);
 }
 
 void validationLED() {
