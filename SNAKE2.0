@@ -1,8 +1,8 @@
 // Exemple d'utilisation de la librarie RGBmatrixPanel
 
-#include <RGBmatrixPanel.h>
+#include <MOMO_RGB_Matrix.h>
 
-RGBmatrixPanel matrix(A0, A1, A2, A3, 11, 10, 9, false, 64);
+ MOMO_RGB_Matrix matrix;
 
 #define LD1R 2  // ALIAS DES LED ET DES BOUTON
 #define LD1G 1
@@ -20,10 +20,11 @@ RGBmatrixPanel matrix(A0, A1, A2, A3, 11, 10, 9, false, 64);
 #define BTNA 6
 #define BTNB 4
 #define BTNC 5
-#define CHAN11 4
+#define CHAN11 5
 #define CHAN2 3
 #define SW1 5
 int VitesseDeJeu = 250;
+volatile int SensEncodeur = -1;
 unsigned long dernierDeplacement = 0;
 volatile int StartEncodeur = 0;
 
@@ -140,7 +141,7 @@ matrix.print(">");
 DernSelection = Selection;
 // SI SW1 APPUYER ON VALIDE LA SELECTION
  if (lireSW1()){
-  delay(150);PAUSE POUR EVITER LE REBON
+  delay(150);//PAUSE POUR EVITER LE REBON
   if (Selection == 0){
     currentState = Playing;
   }else{
@@ -233,19 +234,12 @@ void resetGame(){
  nourritureY = random(1,30);
 }
 void EncodeurInterruption() {
-  if ((PINE & (1 << CHAN11)) == 0){
-   if ((PINE & (1 << CHAN2)) == 0){
-    StartEncodeur++;
+  if ((PINE & (1 << CHAN11)) == (PINE & (1 << CHAN2))){
+    SensEncodeur = 1;
   } else {
-    StartEncodeur--;
+    SensEncodeur = 0;
   }
-}else{
-  if((PINE & (1 << CHAN2)) == 0){
-    StartEncodeur--;
-  }else{
-    StartEncodeur++;
-  }
- }
+
 }
 void ctrlLD1R(unsigned char etat) {
   if (etat) {
@@ -351,7 +345,7 @@ void setup() {
   DDRE &= ~((1 << CHAN2) |(1 <<CHAN11));
   PORTE |=(1 << CHAN2) | (1 << CHAN11); 
 
-  attachInterrupt(5, EncodeurInterruption, CHANGE);
+  attachInterrupt(1, EncodeurInterruption, CHANGE);
 }
 void dessin() {
   matrix.setTextSize(1);
@@ -373,6 +367,16 @@ void loop() {
   //dessin();
   Serial.print("StartEncodeur =");
   Serial.println(StartEncodeur);
+
+  if(SensEncodeur != -1){ // si encodeur a bouger
+ if (SensEncodeur == 1){ // compare si equale
+ StartEncodeur++;
+ }else if (SensEncodeur == 0) {
+  StartEncodeur--;
+ }
+}
+ SensEncodeur = -1; //reset pour attendre le prochain mouvement
+  
 }
 
 void validationLED() {
@@ -396,4 +400,3 @@ void validationBTN() {
   ctrlLD2R(lireBTNRIGTH());
 }
   
-
