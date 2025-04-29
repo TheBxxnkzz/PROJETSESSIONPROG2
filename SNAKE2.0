@@ -1,6 +1,9 @@
+// Exemple d'utilisation de la librarie RGBmatrixPanel
 
- #include <MOMO_RGB_Matrix.h>
- MOMO_RGB_Matrix matrix;
+#include <RGBmatrixPanel.h>
+
+RGBmatrixPanel matrix(A0, A1, A2, A3, 11, 10, 9, false, 64);
+
 #define LD1R 2  // ALIAS DES LED ET DES BOUTON
 #define LD1G 1
 #define LD1B 0
@@ -24,32 +27,33 @@ int VitesseDeJeu = 250;
 unsigned long dernierDeplacement = 0;
 volatile int StartEncodeur = 0;
 
+//struct pour representer un segment serpent
 struct Segment {
-  int x;
-  int y;
+  int x; //position hori
+  int y; //position ver
 };
 
-#define Max_Taille 256
+#define Max_Taille 256 //taille max serpent
 
-Segment snake[Max_Taille];
-int longeur = 5;
-int nourritureX = 10;
+Segment snake[Max_Taille];//declare tableau max taille
+int longeur = 5; // longeur start
+int nourritureX = 10;//position nourriture 
 int nourritureY = 10;
 
-
+//enumeration des direction
 enum Direction { Haut,
                  Bas,
                  Gauche,
                  Droite };
-Direction direction = Haut;
+Direction direction = Haut; //direction du debut
 
-
+//definition dea etat de jeu
 enum class Gamestate {
   MainMenu,
   Parametre,
   Playing,
   Gameover,
-  Exit
+  Exit // pas encore utiliser
 };
 
 void Machine_A_Etat();
@@ -64,8 +68,8 @@ void Machine_A_Etat() {
 
 
   switch (currentState) {
-    case Menu:
-      EtatMenu();
+    case Menu: //si on est dans le menu
+      EtatMenu();//apppeler la fonction qui gere le menu
       break;
     case Parametre:
       EtatParametre();
@@ -77,17 +81,17 @@ void Machine_A_Etat() {
       EtatGameOver();
       break;
     default:
-      break;
+      break; // ne rien faire si aucune valeur valide (securite)
   }
 }
 
 void EtatMenu() {
-  static int Selection = 0;
-  static int DernSelection = 1;
-  static int DernEncodeur = 0;
-  static unsigned long DernierChangement = 0;
-matrix.setTextSize(1);
-matrix.setTextWrap(false);
+  static int Selection = 0;//0 = play ,1 = setting
+  static int DernSelection = 1;// sauvegarde l ancienne selection pour detec le changement
+  static int DernEncodeur = 0;// derniere valeur lue de l encodeur
+  static unsigned long DernierChangement = 0;// temp du dernier changement de selection
+matrix.setTextSize(1);// taille texte
+matrix.setTextWrap(false);// non retour de ligne
 
   matrix.setCursor(10, 0);
   matrix.setTextColor(matrix.Color888(255, 255, 255));
@@ -101,30 +105,30 @@ matrix.setCursor(20, 12);
   matrix.setCursor(20, 22);
   matrix.setTextColor(matrix.Color888(0, 255, 255));
   matrix.print("Setting");
-
+// si 150ms sont passer on lit encodeur pour changer selection
  if (millis() - DernierChangement > 150){
   if (StartEncodeur > DernEncodeur){
-    Selection++;
+    Selection++;// tourner vers bas = suivant
       DernEncodeur = StartEncodeur;
       DernierChangement = millis();
   } else if(StartEncodeur < DernEncodeur){
-    Selection--;
+    Selection--;// tourner vers le haut = precedent
     DernEncodeur = StartEncodeur;
     DernierChangement = millis();
   }
  }
-
+//*IMPORTANT EMPECHE LA SELEECTION DE SORITR DE LA LIMITE
 if (Selection < 0) Selection = 1;
 if (Selection > 0) Selection = 0;
-
+// SI LA SELECTION CHANGE DEPUIS LE DERNIER ETAT
 if (DernSelection != Selection){
   if (DernSelection ==0){
     matrix.setCursor(5, 12);
-    matrix.setTextColor(matrix.Color888(0, 0, 0));
+    matrix.setTextColor(matrix.Color888(0, 0, 0));//EFFACE ANCIEN >
     matrix.print(">");
   }
   DernSelection = Selection;
-}
+}//AFFICHE LA FLECHE
 if (Selection == 0) {
   matrix.setCursor(5, 12);
 } else{
@@ -134,9 +138,9 @@ matrix.setTextColor(matrix.Color888(255, 0, 0));
 matrix.print(">");
 
 DernSelection = Selection;
-
+// SI SW1 APPUYER ON VALIDE LA SELECTION
  if (lireSW1()){
-  delay(150);
+  delay(150);PAUSE POUR EVITER LE REBON
   if (Selection == 0){
     currentState = Playing;
   }else{
@@ -148,30 +152,32 @@ DernSelection = Selection;
 void EtatPlaying() {
 
 
-
-  if (lireBTNUP() && direction != Bas) direction = Haut;
+// DIRECTION DU SERPENT
+  if (lireBTNUP() && direction != Bas) direction = Haut;//ALLER EN HAUT MAIS ENPECHE EN BAS
   if (lireBTNDOWN() && direction != Haut) direction = Bas;
   if (lireBTNLEFT() && direction != Droite) direction = Gauche;
   if (lireBTNRIGTH() && direction != Gauche) direction = Droite;
- 
+ // VERIFIE SI ASSEZ DE TEMPS ET PASSEER POUR DEPLACER LE SERPENT
   if (millis() - dernierDeplacement > VitesseDeJeu) {
-    dernierDeplacement = millis();
+    dernierDeplacement = millis();//MISE A JOUR DU TEMPS ET DERNIER DEPLACEMENT
       matrix.fillScreen(0);
-    for (int i = longeur - 1; i > 0; i--) {
+    for (int i = longeur - 1; i > 0; i--) {//DEPLACE LE CORPS DU SERPENT PREND POSITION DE CELUI EN ARRIERE 
       snake[i] = snake[i - 1]; 
     }
+    //DEPLACE LA TETE DU SERPENT SELON LA DIRECTION TAPER
     switch (direction) {
       case Haut: snake[0].y--; break;
       case Bas: snake[0].y++; break;
       case Gauche: snake[0].x--; break;
       case Droite: snake[0].x++; break;
     }
+    //SI LA CORDONNER TETE SERPENT ET EGALE A CORDONNER NOURRITURE
         if (snake[0].x == nourritureX && snake[0].y == nourritureY){
-      longeur++;
-          nourritureX = random(1, 62);
+      longeur++; //+ LONGEUR SNAKE
+          nourritureX = random(1, 62);//NOUVELLE POSITION ALEATOIRE
           nourritureY = random(1, 30);
-             if (longeur > Max_Taille) longeur = Max_Taille;
-                  if(VitesseDeJeu > 50) VitesseDeJeu -=10;
+             if (longeur > Max_Taille) longeur = Max_Taille;//NE PAS DEPASSER TAILLE MAX
+                  if(VitesseDeJeu > 50) VitesseDeJeu -=10;// AUGMENTER LA VITESSE
 
     }
     if (snake[0].x < 0 || snake[0].x >= 63 || snake[0].y <= 0 || snake[0].y >= 31) {
@@ -215,23 +221,31 @@ void EtatGameOver() {
 
 void resetGame(){
  longeur = 5;
+  VitesseDeJeu = 250;
  direction = Haut;
  snake[0].x = 64 / 2;
  snake[0].y = 32 / 2;
  for (int i = 0; i < longeur; i++) {
   snake[i].x = snake[0].x -i;
   snake[i].y = snake[0].y;
- VitesseDeJeu = 250;
  }
  nourritureX = random(1,62);
  nourritureY = random(1,30);
 }
 void EncodeurInterruption() {
-  if (PINE & (1 << CHAN11)) {
+  if ((PINE & (1 << CHAN11)) == 0){
+   if ((PINE & (1 << CHAN2)) == 0){
     StartEncodeur++;
   } else {
     StartEncodeur--;
   }
+}else{
+  if((PINE & (1 << CHAN2)) == 0){
+    StartEncodeur--;
+  }else{
+    StartEncodeur++;
+  }
+ }
 }
 void ctrlLD1R(unsigned char etat) {
   if (etat) {
@@ -381,3 +395,5 @@ void validationBTN() {
   ctrlLD1G(lireBTNLEFT());
   ctrlLD2R(lireBTNRIGTH());
 }
+  
+
