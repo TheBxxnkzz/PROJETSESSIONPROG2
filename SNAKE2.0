@@ -242,7 +242,7 @@ void resetGame(){
  nourritureY = random(1,30);
 }
 void EncodeurInterruption() {
-  int etatA = (PINE >> 5) & 1;
+  int etatA = (PINE >> 5) & 1;// isole le bit 0 ( 0 ou 1)
   int etatB = (PINE << 3) & 1;
   if(etatA == etatB){
     SensEncodeur = 1;
